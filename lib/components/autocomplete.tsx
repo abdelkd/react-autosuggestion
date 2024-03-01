@@ -1,24 +1,27 @@
-import { Dispatch, SetStateAction, createContext, useContext, useEffect, useState } from "react"
+import { Dispatch, SetStateAction, createContext, useContext, useEffect, useState, HTMLAttributes } from "react"
 import * as ScrollArea from '@radix-ui/react-scroll-area';
 import { FixedSizeList, ListChildComponentProps } from 'react-window'
 
 import { useDebounce } from "../hooks/useDebounce";
 import { useAutoComplete } from "../hooks/useAutoComplete";
 import { useAutoCompleteContext } from "../hooks/useAutoCompleteContext";
+import { cn } from "../utils/cn";
 
 interface AutoCompleteRootProps {
   children: React.ReactNode,
 }
 
-interface AutoCompleteInputProps {
+interface AutoCompleteInputProps extends HTMLAttributes<HTMLInputElement> {
   timeout?: number
 }
 
 export type AutoCompleteRowProps<T extends (args: any) => any> = ListChildComponentProps<Awaited<ReturnType<T>>>
 
-type AutoCompleteListProps<T> = {
+interface AutoCompleteListProps<T> extends HTMLAttributes<ScrollArea.ScrollAreaProps> {
   queryFn: (q: string) => Promise<T[]>
+  onError?: (err: unknown) => void
   renderItem: ({ item }: { item: T }) => React.ReactNode
+  itemSize: number
 }
 
 export interface IAutoCompleteContext<T> {
@@ -26,7 +29,6 @@ export interface IAutoCompleteContext<T> {
   setQuery: Dispatch<SetStateAction<string | null>>;
   setData: Dispatch<SetStateAction<T[] | null>>;
   data: T[] | null;
-  onError: () => void;
 }
 
 export const AutoCompleteContext = createContext<IAutoCompleteContext<any>>({
@@ -34,7 +36,6 @@ export const AutoCompleteContext = createContext<IAutoCompleteContext<any>>({
   setQuery: () => { },
   setData: () => { },
   data: null,
-  onError: () => { },
 })
 
 const AutoComplete = (props: AutoCompleteRootProps) => {
@@ -46,7 +47,7 @@ const AutoComplete = (props: AutoCompleteRootProps) => {
 }
 
 const AutoCompleteInput = (props: AutoCompleteInputProps) => {
-  const { timeout } = props
+  const { timeout, className } = props
 
   const { query, setQuery } = useContext(AutoCompleteContext)
 
@@ -63,15 +64,23 @@ const AutoCompleteInput = (props: AutoCompleteInputProps) => {
   }, [debouncedQuery])
 
   return <>
-    <input className="w-[220px] rounded border" value={localQuery} onChange={(e) => setLocalQuery(e.target.value)} />
+    <input className={cn(
+      "w-[220px] flex h-9 rounded-md border border-gray-100 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-200 disabled:cursor-not-allowed disabled:opacity-50",
+      className
+    )} value={localQuery} onChange={(e) => setLocalQuery(e.target.value)} />
   </>
 }
 
 const AutoCompleteList = <T,>(props: AutoCompleteListProps<T>) => {
-  const { queryFn, renderItem } = props
+  const {
+    queryFn,
+    renderItem,
+    onError,
+    className,
+    itemSize } = props
 
   const { data, setData } = useAutoCompleteContext<T>()
-  const initialData = useAutoComplete(queryFn)
+  const initialData = useAutoComplete(queryFn, { onError })
 
   useEffect(() => {
     setData(initialData)
@@ -80,18 +89,18 @@ const AutoCompleteList = <T,>(props: AutoCompleteListProps<T>) => {
   if (!data || data.length === 0) return null
 
   return <>
-    {<ScrollArea.Root className="w-[220px] h-[300px] rounded-md overflow-hidden bg-gray-100">
+    {<ScrollArea.Root className={cn("w-[220px] h-[300px] px-3 rounded-md overflow-hidden bg-transparent border border-gray-100 shadow bt-0 rounded-t-none", className)} >
       <ScrollArea.Viewport className="w-full h-full">
         <FixedSizeList
           itemCount={data.length ?? 7}
-          itemSize={15}
+          itemSize={itemSize}
           width={220}
           height={300}
           itemData={data}
         >
           {
             ({ data, index, style }: ListChildComponentProps<Awaited<ReturnType<typeof queryFn>>>) => {
-              return <div style={style}>
+              return <div style={style} className="translate-y-1/2 -top-1/2">
                 {renderItem({ item: data[index] })}
               </div>
             }

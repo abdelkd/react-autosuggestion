@@ -7,22 +7,27 @@ type QueryFn<T = any> = (query: string) => Promise<T[]>
 type UseAutoCompleteArgs = {
   pagination?: number | null,
   retries?: number,
-  onError?: () => void,
+  onError?: (err: unknown) => void,
 }
 
 export const useAutoComplete = (queryFn: QueryFn, args: UseAutoCompleteArgs = {}) => {
-  const { } = args
+  const {
+    onError = () => { }
+  } = args
 
   const { query, data, setData } = useContext(AutoCompleteContext)
   const fetchData = useCallback(() => {
     (async () => {
-      console.log("doing fetching")
       if (!query) {
         return setData([])
       }
 
-      let res = await queryFn(query)
-      setData(res)
+      try {
+        let res = await queryFn(query)
+        setData(res)
+      } catch (error) {
+        onError(error)
+      }
     })()
 
   }, [query])

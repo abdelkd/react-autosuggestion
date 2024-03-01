@@ -11,9 +11,11 @@
   },
   "dependencies": {
     "@radix-ui/react-scroll-area": "^1.0.5",
+    "clsx": "^2.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-window": "^1.8.10"
+    "react-window": "^1.8.10",
+    "tw-merge": "0.0.1-alpha.3"
   },
   "devDependencies": {
     "@types/node": "^20.11.17",

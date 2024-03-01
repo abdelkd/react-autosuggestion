@@ -8,6 +8,9 @@ dependencies:
   '@radix-ui/react-scroll-area':
     specifier: ^1.0.5
     version: 1.0.5(@types/react-dom@18.2.19)(@types/react@18.2.60)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+  clsx:
+    specifier: ^2.1.0
+    version: 2.1.0
   react:
     specifier: ^18.2.0
     version: 18.2.0
@@ -17,6 +20,9 @@ dependencies:
   react-window:
     specifier: ^1.8.10
     version: 1.8.10(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+  tw-merge:
+    specifier: 0.0.1-alpha.3
+    version: 0.0.1-alpha.3
 
 devDependencies:
   '@types/node':
@@ -1317,6 +1323,11 @@ packages:
       fsevents: 2.3.3
     dev: true
 
+  /clsx@2.1.0:
+    resolution: {integrity: sha512-m3iNNWpd9rl3jvvcBnu70ylMdrXt8Vlq4HYadnU5fwcOtvkSQWPmj7amUcDT2qYI7risszBjI5AUIUox9D16pg==}
+    engines: {node: '>=6'}
+    dev: false
+
   /color-convert@1.9.3:
     resolution: {integrity: sha512-QfAUtd+vFdAtFQcC8CCyYt1fYWxSqAiK2cSD6zDB8N3cpsEBAvRxp9zOGg6G/SHHJYAT88/az/IuDGALsNVbGg==}
     dependencies:
@@ -2493,6 +2504,10 @@ packages:
   /ts-interface-checker@0.1.13:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
     dev: true
+
+  /tw-merge@0.0.1-alpha.3:
+    resolution: {integrity: sha512-HvuKdaUWjJKFlUa/DKDGnicPXill0bUZnzoK/BoTWn0OkKLfIrMMn97VXW6fFdArA40FeBkitWjr7SJRuaDvCg==}
+    dev: false
 
   /type-check@0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}

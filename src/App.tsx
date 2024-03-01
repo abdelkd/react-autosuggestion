@@ -20,7 +20,8 @@ function App() {
         <AutoCompleteInput />
         <AutoCompleteList
           queryFn={fakeQueryFn}
-          renderItem={({ item }) => <p>{item}</p>}
+          renderItem={({ item }) => <p className="border-b">{item}</p>}
+          itemSize={30}
         />
       </AutoComplete>
     </div>
