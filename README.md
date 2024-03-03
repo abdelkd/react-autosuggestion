@@ -2,17 +2,17 @@
 
 # React Suggestion
 
-a type-safe search suggestion component library with great performance with large arrays
+Build fast and performant React autocomplete components with this library. Features include asynchronous data fetching and optimizations for large datasets.
 
 # Features
 - type safe
-- high performance with large arrays
+- high performance with large datasets
 - ease of use
 
 
 ## Installation
 ```bash
-npm i react-suggestion
+npm i @abdelkd/react-suggestion
 ```
 
 ## 🚀 Quick Start
@@ -21,5 +21,5 @@ import {
   AutoSuggestion
   AutoSuggestionInput
   AutoSuggestionList
-} from 'react-suggestion';
+} from '@abdelkd/react-suggestion';
 ```
