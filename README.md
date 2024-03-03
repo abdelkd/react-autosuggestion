@@ -1,13 +1,13 @@
 
-
 # React Suggestion
 
-Build fast and performant React autocomplete components with this library. Features include asynchronous data fetching and optimizations for large datasets.
+Build fast and performant React autocomplete search with this library. Features include asynchronous data fetching and optimizations for large datasets.
 
 # Features
-- type safe
-- high performance with large datasets
-- ease of use
+- Asynchronous data fetching
+- Create search suggestions easily
+- Type Safe
+- High performance with large datasets
 
 
 ## Installation
