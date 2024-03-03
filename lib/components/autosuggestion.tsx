@@ -47,7 +47,7 @@ const AutoSuggestion = (props: AutoSuggestionRootProps) => {
 }
 
 const AutoSuggestionInput = (props: AutoSuggestionInputProps) => {
-  const { timeout, className } = props
+  const { timeout, className, ...extraProps } = props
 
   const { query, setQuery } = useContext(AutoSuggestionContext)
 
@@ -67,7 +67,7 @@ const AutoSuggestionInput = (props: AutoSuggestionInputProps) => {
     <input className={cn(
       "w-[220px] flex h-9 rounded-md border border-gray-100 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-200 disabled:cursor-not-allowed disabled:opacity-50",
       className
-    )} value={localQuery} onChange={(e) => setLocalQuery(e.target.value)} />
+    )} value={localQuery} onChange={(e) => setLocalQuery(e.target.value)} {...extraProps} />
   </>
 }
 
