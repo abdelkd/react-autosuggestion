@@ -1,15 +1,30 @@
-import { AutoCompleteInput, AutoCompleteList, AutoCompleteRoot } from "./components/autocomplete"
+import {
+  AutoComplete,
+  AutoCompleteInput,
+  AutoCompleteList,
+  withAutoComplete
+} from "../lib/components/autocomplete"
+
+const fakeQueryFn = async (query: string) => {
+  const data = new Array(50000).fill(null).map((_, i) => i)
+  const res = data.filter(item => item < Number(query))
+
+  return res
+}
 
 function App() {
 
   return (
-    <>
-      <AutoCompleteRoot>
+    <div>
+      <AutoComplete>
         <AutoCompleteInput />
-        <AutoCompleteList />
-      </AutoCompleteRoot>
-    </>
+        <AutoCompleteList
+          queryFn={fakeQueryFn}
+          renderItem={({ item }) => <p>{item}</p>}
+        />
+      </AutoComplete>
+    </div>
   )
 }
 
-export default App
+export default withAutoComplete(App)

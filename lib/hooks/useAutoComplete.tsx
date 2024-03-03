@@ -1,8 +1,8 @@
-import { useContext, useEffect, useState } from "react"
+import { useCallback, useContext, useEffect } from "react"
 import { AutoCompleteContext } from "../components/autocomplete"
 
 
-type QueryFn<T> = (query: string) => Promise<T[]>
+type QueryFn<T = any> = (query: string) => Promise<T[]>
 
 type UseAutoCompleteArgs = {
   pagination?: number | null,
@@ -10,25 +10,25 @@ type UseAutoCompleteArgs = {
   onError?: () => void,
 }
 
-export const useAutoComplete = <T,>(queryFn: QueryFn<T>, args: UseAutoCompleteArgs = {}) => {
-  const {} = args
+export const useAutoComplete = (queryFn: QueryFn, args: UseAutoCompleteArgs = {}) => {
+  const { } = args
 
-  const [data, setData] = useState<T[]>([])
-
-  const { query } = useContext(AutoCompleteContext)
-
-  useEffect(() => {
-
-    (async() => {
-      if(query) {
-        let res = await queryFn(query)
-        setData(res)
+  const { query, data, setData } = useContext(AutoCompleteContext)
+  const fetchData = useCallback(() => {
+    (async () => {
+      console.log("doing fetching")
+      if (!query) {
+        return setData([])
       }
-      setData([])
+
+      let res = await queryFn(query)
+      setData(res)
     })()
 
-    console.log('updated the data from context', query, data)
+  }, [query])
 
+  useEffect(() => {
+    fetchData()
   }, [query])
 
   return data

@@ -1,8 +1,10 @@
 import { Dispatch, SetStateAction, createContext, useContext, useEffect, useState } from "react"
 import * as ScrollArea from '@radix-ui/react-scroll-area';
+import { FixedSizeList, ListChildComponentProps } from 'react-window'
 
 import { useDebounce } from "../hooks/useDebounce";
 import { useAutoComplete } from "../hooks/useAutoComplete";
+import { useAutoCompleteContext } from "../hooks/useAutoCompleteContext";
 
 interface AutoCompleteRootProps {
   children: React.ReactNode,
@@ -12,52 +14,46 @@ interface AutoCompleteInputProps {
   timeout?: number
 }
 
-interface AutoCompleteListProps {}
+export type AutoCompleteRowProps<T extends (args: any) => any> = ListChildComponentProps<Awaited<ReturnType<T>>>
 
-interface AutoCompleteContext<T = any> {
+type AutoCompleteListProps<T> = {
+  queryFn: (q: string) => Promise<T[]>
+  renderItem: ({ item }: { item: T }) => React.ReactNode
+}
+
+export interface IAutoCompleteContext<T> {
   query: string | null,
-  setQuery: Dispatch<SetStateAction<string | null>> 
+  setQuery: Dispatch<SetStateAction<string | null>>;
+  setData: Dispatch<SetStateAction<T[] | null>>;
   data: T[] | null;
   onError: () => void;
 }
 
-const AUTOCOMPLETE_CONTEXT: AutoCompleteContext = {
+export const AutoCompleteContext = createContext<IAutoCompleteContext<any>>({
   query: null,
-  setQuery: () => {},
+  setQuery: () => { },
+  setData: () => { },
   data: null,
-  onError: () => {},
-}
+  onError: () => { },
+})
 
-export const AutoCompleteContext = createContext<AutoCompleteContext>(AUTOCOMPLETE_CONTEXT)
-
-export const AutoCompleteRoot = (props: AutoCompleteRootProps) => {
+const AutoComplete = (props: AutoCompleteRootProps) => {
   const { children } = props
-  const [query, setQuery] = useState<string | null>(null)
 
-  const context: AutoCompleteContext = {
-    query,
-    setQuery,
-    data: null,
-    onError: () => {}
-  }
-
-  return <AutoCompleteContext.Provider value={context}>
+  return <>
     {children}
-    <DebugContext />
-  </AutoCompleteContext.Provider>
+  </>
 }
 
-export const AutoCompleteInput = (props: AutoCompleteInputProps) => {
+const AutoCompleteInput = (props: AutoCompleteInputProps) => {
   const { timeout } = props
 
   const { query, setQuery } = useContext(AutoCompleteContext)
 
-  const [localQuery, setLocalQuery] = useState(query)
+  const [localQuery, setLocalQuery] = useState(query ?? "")
   const debouncedQuery = useDebounce(localQuery, timeout)
 
   useEffect(() => {
-    console.log('updating state', debouncedQuery, localQuery)
-
     if (localQuery === "") {
       setQuery(null)
       return
@@ -67,43 +63,76 @@ export const AutoCompleteInput = (props: AutoCompleteInputProps) => {
   }, [debouncedQuery])
 
   return <>
-    <p>{localQuery}</p>
-    <input className="w-[220px]" value={localQuery as string} onChange={(e) => setLocalQuery(e.target.value)} />
+    <input className="w-[220px] rounded border" value={localQuery} onChange={(e) => setLocalQuery(e.target.value)} />
   </>
 }
 
-export const AutoCompleteList = (props: AutoCompleteListProps) => {
-  const {} = props
+const AutoCompleteList = <T,>(props: AutoCompleteListProps<T>) => {
+  const { queryFn, renderItem } = props
 
-  const data = useAutoComplete(fakeQueryFn)
+  const { data, setData } = useAutoCompleteContext<T>()
+  const initialData = useAutoComplete(queryFn)
+
+  useEffect(() => {
+    setData(initialData)
+  }, [])
+
+  if (!data || data.length === 0) return null
 
   return <>
     {<ScrollArea.Root className="w-[220px] h-[300px] rounded-md overflow-hidden bg-gray-100">
-    <ScrollArea.Viewport className="w-full h-full">
-      <div className="p-2">
-        {data.map(item => <div key={item} className="py-1">{item}</div>)}
-      </div>
-    </ScrollArea.Viewport>
-    <ScrollArea.Scrollbar
-      className="flex select-none touch-none p-0.5"
-      orientation="vertical"
-    >
-      <ScrollArea.Thumb className="flex-1" />
-    </ScrollArea.Scrollbar>
-  </ScrollArea.Root>
-        }
-    </>
+      <ScrollArea.Viewport className="w-full h-full">
+        <FixedSizeList
+          itemCount={data.length ?? 7}
+          itemSize={15}
+          width={220}
+          height={300}
+          itemData={data}
+        >
+          {
+            ({ data, index, style }: ListChildComponentProps<Awaited<ReturnType<typeof queryFn>>>) => {
+              return <div style={style}>
+                {renderItem({ item: data[index] })}
+              </div>
+            }
+          }
+        </FixedSizeList>
+      </ScrollArea.Viewport>
+      <ScrollArea.Scrollbar
+        className="flex select-none touch-none p-0.5"
+        orientation="vertical"
+      >
+        <ScrollArea.Thumb className="flex-1" />
+      </ScrollArea.Scrollbar>
+    </ScrollArea.Root>
+    }
+  </>
 }
 
-const DebugContext = () => {
-  const all = useContext(AutoCompleteContext)
-  return <p>{JSON.stringify(all)}</p>
+const withAutoComplete = <P extends {}, T>(Component: React.ComponentType<P>) => {
+
+  return function(props: P) {
+    const [query, setQuery] = useState<string | null>(null)
+
+    const [data, setData] = useState<T[] | null>(null)
+
+    const context = {
+      query,
+      setQuery,
+      setData,
+      data,
+      onError: () => { },
+    } as IAutoCompleteContext<T>
+
+    return <AutoCompleteContext.Provider value={context}>
+      <Component {...props} />
+    </AutoCompleteContext.Provider>
+  }
 }
 
-const fakeQueryFn = async (query: string) => {
-  const data = new Array(50).fill(null).map((_, i) => i)
-
-  const res = data.filter(item => item < Number(query))
-
-  return res
+export {
+  withAutoComplete,
+  AutoComplete,
+  AutoCompleteInput,
+  AutoCompleteList
 }
