@@ -3,42 +3,42 @@ import * as ScrollArea from '@radix-ui/react-scroll-area';
 import { FixedSizeList, ListChildComponentProps } from 'react-window'
 
 import { useDebounce } from "../hooks/useDebounce";
-import { useAutoComplete } from "../hooks/useAutoComplete";
-import { useAutoCompleteContext } from "../hooks/useAutoCompleteContext";
+import { useAutoSuggestion } from "../hooks/useAutoSuggestion";
+import { useAutoSuggestionContext } from "../hooks/useAutoSuggestionContext";
 import { cn } from "../utils/cn";
 
-interface AutoCompleteRootProps {
+interface AutoSuggestionRootProps {
   children: React.ReactNode,
 }
 
-interface AutoCompleteInputProps extends HTMLAttributes<HTMLInputElement> {
+interface AutoSuggestionInputProps extends HTMLAttributes<HTMLInputElement> {
   timeout?: number
 }
 
-export type AutoCompleteRowProps<T extends (args: any) => any> = ListChildComponentProps<Awaited<ReturnType<T>>>
+export type AutoSuggestionRowProps<T extends (args: any) => any> = ListChildComponentProps<Awaited<ReturnType<T>>>
 
-interface AutoCompleteListProps<T> extends HTMLAttributes<ScrollArea.ScrollAreaProps> {
+interface AutoSuggestionListProps<T> extends HTMLAttributes<ScrollArea.ScrollAreaProps> {
   queryFn: (q: string) => Promise<T[]>
   onError?: (err: unknown) => void
   renderItem: ({ item }: { item: T }) => React.ReactNode
   itemSize: number
 }
 
-export interface IAutoCompleteContext<T> {
+export interface IAutoSuggestionContext<T> {
   query: string | null,
   setQuery: Dispatch<SetStateAction<string | null>>;
   setData: Dispatch<SetStateAction<T[] | null>>;
   data: T[] | null;
 }
 
-export const AutoCompleteContext = createContext<IAutoCompleteContext<any>>({
+export const AutoSuggestionContext = createContext<IAutoSuggestionContext<any>>({
   query: null,
   setQuery: () => { },
   setData: () => { },
   data: null,
 })
 
-const AutoComplete = (props: AutoCompleteRootProps) => {
+const AutoSuggestion = (props: AutoSuggestionRootProps) => {
   const { children } = props
 
   return <>
@@ -46,10 +46,10 @@ const AutoComplete = (props: AutoCompleteRootProps) => {
   </>
 }
 
-const AutoCompleteInput = (props: AutoCompleteInputProps) => {
+const AutoSuggestionInput = (props: AutoSuggestionInputProps) => {
   const { timeout, className } = props
 
-  const { query, setQuery } = useContext(AutoCompleteContext)
+  const { query, setQuery } = useContext(AutoSuggestionContext)
 
   const [localQuery, setLocalQuery] = useState(query ?? "")
   const debouncedQuery = useDebounce(localQuery, timeout)
@@ -71,7 +71,7 @@ const AutoCompleteInput = (props: AutoCompleteInputProps) => {
   </>
 }
 
-const AutoCompleteList = <T,>(props: AutoCompleteListProps<T>) => {
+const AutoSuggestionList = <T,>(props: AutoSuggestionListProps<T>) => {
   const {
     queryFn,
     renderItem,
@@ -79,8 +79,8 @@ const AutoCompleteList = <T,>(props: AutoCompleteListProps<T>) => {
     className,
     itemSize } = props
 
-  const { data, setData } = useAutoCompleteContext<T>()
-  const initialData = useAutoComplete(queryFn, { onError })
+  const { data, setData } = useAutoSuggestionContext<T>()
+  const initialData = useAutoSuggestion(queryFn, { onError })
 
   useEffect(() => {
     setData(initialData)
@@ -118,7 +118,7 @@ const AutoCompleteList = <T,>(props: AutoCompleteListProps<T>) => {
   </>
 }
 
-const withAutoComplete = <P extends {}, T>(Component: React.ComponentType<P>) => {
+const withAutoSuggestion = <P extends {}, T>(Component: React.ComponentType<P>) => {
 
   return function(props: P) {
     const [query, setQuery] = useState<string | null>(null)
@@ -131,17 +131,17 @@ const withAutoComplete = <P extends {}, T>(Component: React.ComponentType<P>) =>
       setData,
       data,
       onError: () => { },
-    } as IAutoCompleteContext<T>
+    } as IAutoSuggestionContext<T>
 
-    return <AutoCompleteContext.Provider value={context}>
+    return <AutoSuggestionContext.Provider value={context}>
       <Component {...props} />
-    </AutoCompleteContext.Provider>
+    </AutoSuggestionContext.Provider>
   }
 }
 
 export {
-  withAutoComplete,
-  AutoComplete,
-  AutoCompleteInput,
-  AutoCompleteList
+  withAutoSuggestion,
+  AutoSuggestion,
+  AutoSuggestionInput,
+  AutoSuggestionList
 }

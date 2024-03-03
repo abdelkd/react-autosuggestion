@@ -1,21 +1,21 @@
 import { useCallback, useContext, useEffect } from "react"
-import { AutoCompleteContext } from "../components/autocomplete"
+import { AutoSuggestionContext } from "../components/autosuggestion"
 
 
 type QueryFn<T = any> = (query: string) => Promise<T[]>
 
-type UseAutoCompleteArgs = {
+type UseAutoSuggestionArgs = {
   pagination?: number | null,
   retries?: number,
   onError?: (err: unknown) => void,
 }
 
-export const useAutoComplete = (queryFn: QueryFn, args: UseAutoCompleteArgs = {}) => {
+export const useAutoSuggestion = (queryFn: QueryFn, args: UseAutoSuggestionArgs = {}) => {
   const {
     onError = () => { }
   } = args
 
-  const { query, data, setData } = useContext(AutoCompleteContext)
+  const { query, data, setData } = useContext(AutoSuggestionContext)
   const fetchData = useCallback(() => {
     (async () => {
       if (!query) {

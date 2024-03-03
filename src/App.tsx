@@ -1,9 +1,9 @@
 import {
-  AutoComplete,
-  AutoCompleteInput,
-  AutoCompleteList,
-  withAutoComplete
-} from "../lib/components/autocomplete"
+  AutoSuggestion,
+  AutoSuggestionInput,
+  AutoSuggestionList,
+  withAutoSuggestion
+} from "../lib/components/autosuggestion"
 
 const fakeQueryFn = async (query: string) => {
   const data = new Array(50000).fill(null).map((_, i) => i)
@@ -16,16 +16,16 @@ function App() {
 
   return (
     <div>
-      <AutoComplete>
-        <AutoCompleteInput />
-        <AutoCompleteList
+      <AutoSuggestion>
+        <AutoSuggestionInput />
+        <AutoSuggestionList
           queryFn={fakeQueryFn}
           renderItem={({ item }) => <p className="border-b">{item}</p>}
           itemSize={30}
         />
-      </AutoComplete>
+      </AutoSuggestion>
     </div>
   )
 }
 
-export default withAutoComplete(App)
+export default withAutoSuggestion(App)
