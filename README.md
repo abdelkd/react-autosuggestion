@@ -4,8 +4,8 @@
 Build fast and performant React autocomplete search with this library. Features include asynchronous data fetching and optimizations for large datasets.
 
 # Features
+- Create a search bar suggestions in 1 minute
 - Asynchronous data fetching
-- Create search suggestions easily
 - Type Safe
 - High performance with large datasets
 
